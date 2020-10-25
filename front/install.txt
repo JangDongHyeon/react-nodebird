@@ -1,0 +1,5 @@
+npm init
+npm i next@9 
+npm i eslint -D
+npm i eslint-plugin-import -D
+npm i eslint-plugin-react -D
