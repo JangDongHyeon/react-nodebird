@@ -23,13 +23,22 @@ db.sequelize.sync()
     })
     .catch(console.error);
 passportConfig();
+if (process.env.NODE_ENV === 'production') {
+    app.use(morgan('combined'));
+    app.use(hpp());
+    app.use(helmet({ contentSecurityPolicy: false }));
+    app.use(cors({
+        origin: 'http://nodebird.com',
+        credentials: true,
+    }));
+} else {
+    app.use(morgan('dev'));
+    app.use(cors({
+        origin: 'http://localhost:3001',
+        credentials: true //cookie 전달 위해서.
 
-app.use(morgan('dev'));
-app.use(cors({
-    origin: 'http://localhost:3001',
-    credentials: true //cookie 전달 위해서.
-
-}));
+    }));
+}
 app.use('/', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
