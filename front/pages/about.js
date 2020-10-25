@@ -50,8 +50,8 @@ const About = () => {
     );
 };
 
-export const getStaticProps = wrapper.getStaticProps(async (context) => {
-    console.log('getStaticProps');
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+    console.log('getServerSideProps');
     context.store.dispatch({
         type: LOAD_USER_REQUEST,
         data: 1,
