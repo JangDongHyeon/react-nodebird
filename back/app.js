@@ -51,7 +51,7 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: false, //https 하면 true
-        domain: process.env.NODE_ENV === 'production' && '.nodebu.com'
+        domain: process.env.NODE_ENV === 'production' && '.nodebu.ml'
     },
 }));
 app.use(passport.initialize());
