@@ -166,8 +166,8 @@ router.delete('/:postId/like', isLoggedIn, async (req, res, next) => { // DELETE
 
 router.post('/images', isLoggedIn, upload.array('image'), (req, res, next) => { // POST /post/images
     console.log(req.files);
-    // res.json(req.files.map((v) => v.location.replace(/\/original\//, '/thumb/')));
-    res.json(req.files.map((v) => v.location));  //local filename
+    res.json(req.files.map((v) => v.location.replace(/\/original\//, '/thumb/'))); //리사이징 된 값 보내기
+    // res.json(req.files.map((v) => v.location));  //local filename // v.location s3 그냥 주소값
 });
 
 
