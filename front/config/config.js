@@ -1,2 +1,2 @@
-export const backUrl = "http://13.125.93.28"
-export const awsBackUrl = 'http:/13.125.93.28'
+export const backUrl = "http://api.nodebu.ml"
+export const awsBackUrl = 'http://api.nodebu.ml'

@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === 'production') {
     app.use(hpp());
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(cors({
-        origin: 'http://nodebird.com',
+        origin: ['http://nodebu.ml', 'http://www.nodebu.ml'],
         credentials: true,
     }));
 } else {
@@ -48,11 +48,11 @@ app.use(session({
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
-    // cookie: {
-    //     httpOnly: true,
-    //     secure: false,
-    //     domain: process.env.NODE_ENV === 'production' && '.nodebird.com'
-    // },
+    cookie: {
+        httpOnly: true,
+        secure: false, //https 하면 true
+        domain: process.env.NODE_ENV === 'production' && '.nodebu.com'
+    },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -66,6 +66,6 @@ app.use('/post', postRouter);
 app.use('/user', userRouter);
 app.use('/hashtag', hashtagRouter);
 
-app.listen(3065, () => {
+app.listen(80, () => {
     console.log('서버 실행 중!');
 });
