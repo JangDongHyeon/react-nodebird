@@ -66,16 +66,14 @@ const PostForm = props => {
                 <Button type="primary" style={{ float: 'right' }} htmlType="submit">짹짹</Button>
             </div>
             <div>
-                {imagePaths.map((v, i) => {
-                    return (
-                        <div key={v} style={{ display: 'inline-block' }}>
-                            <img src={v.replace(/\/thumb\//, '/original/')} style={{ width: '200px' }} alt={v} />
-                            <div>
-                                <Button onClick={onRemoveImage(i)}>제거</Button>
-                            </div>
+                {imagePaths.map((v, i) => (
+                    <div key={v} style={{ display: 'inline-block' }}>
+                        <img src={v.replace(/\/thumb\//, '/original/')} style={{ width: '200px' }} alt={v} />
+                        <div>
+                            <Button onClick={onRemoveImage(i)}>제거</Button>
                         </div>
-                    )
-                })}
+                    </div>
+                ))}
             </div>
         </Form>
     );
