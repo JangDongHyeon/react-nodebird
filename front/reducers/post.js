@@ -11,27 +11,33 @@ export const initialState = {
     unlikePostLoading: false,
     unlikePostDone: false,
     unlikePostError: null,
+    loadPostLoading: false,
+    loadPostDone: false,
+    loadPostError: null,
     loadPostsLoading: false,
     loadPostsDone: false,
     loadPostsError: null,
     addPostLoading: false,
     addPostDone: false,
     addPostError: null,
+    updatePostLoading: false,
+    updatePostDone: false,
+    updatePostError: null,
     removePostLoading: false,
     removePostDone: false,
     removePostError: null,
     addCommentLoading: false,
     addCommentDone: false,
     addCommentError: null,
-    loadPostLoading: false,
-    loadPostDone: false,
-    loadPostError: null,
     uploadImagesLoading: false,
     uploadImagesDone: false,
     uploadImagesError: null,
     retweetLoading: false,
     retweetDone: false,
     retweetError: null,
+    reportPostLoading: false,
+    reportPostDone: false,
+    reportPostError: null,
 };
 
 export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
@@ -66,6 +72,10 @@ export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
 
+export const UPDATE_POST_REQUEST = 'UPDATE_POST_REQUEST';
+export const UPDATE_POST_SUCCESS = 'UPDATE_POST_SUCCESS';
+export const UPDATE_POST_FAILURE = 'UPDATE_POST_FAILURE';
+
 export const REMOVE_POST_REQUEST = 'REMOVE_POST_REQUEST';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
@@ -77,6 +87,10 @@ export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
 export const RETWEET_REQUEST = 'RETWEET_REQUEST';
 export const RETWEET_SUCCESS = 'RETWEET_SUCCESS';
 export const RETWEET_FAILURE = 'RETWEET_FAILURE';
+
+export const REPORT_POST_REQUEST = 'REPORT_POST_REQUEST';
+export const REPORT_POST_SUCCESS = 'REPORT_POST_SUCCESS';
+export const REPORT_POST_FAILURE = 'REPORT_POST_FAILURE';
 
 export const REMOVE_IMAGE = 'REMOVE_IMAGE';
 
@@ -173,8 +187,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             draft.loadPostError = action.error;
             break;
         case LOAD_USER_POSTS_REQUEST:
-        case LOAD_POSTS_REQUEST:
         case LOAD_HASHTAG_POSTS_REQUEST:
+        case LOAD_POSTS_REQUEST:
             draft.loadPostsLoading = true;
             draft.loadPostsDone = false;
             draft.loadPostsError = null;
@@ -207,6 +221,20 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
         case ADD_POST_FAILURE:
             draft.addPostLoading = false;
             draft.addPostError = action.error;
+            break;
+        case UPDATE_POST_REQUEST:
+            draft.updatePostLoading = true;
+            draft.updatePostDone = false;
+            draft.updatePostError = null;
+            break;
+        case UPDATE_POST_SUCCESS:
+            draft.updatePostLoading = false;
+            draft.updatePostDone = true;
+            draft.mainPosts.find((v) => v.id === action.data.PostId).content = action.data.content;
+            break;
+        case UPDATE_POST_FAILURE:
+            draft.updatePostLoading = false;
+            draft.updatePostError = action.error;
             break;
         case REMOVE_POST_REQUEST:
             draft.removePostLoading = true;
@@ -245,6 +273,19 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
             //   addCommentDone: true,
             // };
         }
+        case REPORT_POST_REQUEST:
+            draft.reportPostLoading = true;
+            draft.reportPostDone = false;
+            draft.reportPostError = null;
+            break;
+        case REPORT_POST_SUCCESS:
+            draft.reportPostLoading = false;
+            draft.reportPostDone = true;
+            break;
+        case REPORT_POST_FAILURE:
+            draft.reportPostLoading = false;
+            draft.reportPostError = action.error;
+            break;
         case ADD_COMMENT_FAILURE:
             draft.addCommentLoading = false;
             draft.addCommentError = action.error;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
+import { all, fork, put, takeLatest, call } from 'redux-saga/effects';
 
 import {
     ADD_COMMENT_FAILURE,
@@ -17,19 +17,16 @@ import {
     LOAD_POST_SUCCESS,
     LOAD_POSTS_FAILURE,
     LOAD_POSTS_REQUEST,
-    LOAD_POSTS_SUCCESS,
-    LOAD_USER_POSTS_FAILURE,
-    LOAD_USER_POSTS_REQUEST,
-    LOAD_USER_POSTS_SUCCESS,
+    LOAD_POSTS_SUCCESS, LOAD_USER_POSTS_FAILURE, LOAD_USER_POSTS_REQUEST, LOAD_USER_POSTS_SUCCESS,
     REMOVE_POST_FAILURE,
     REMOVE_POST_REQUEST,
-    REMOVE_POST_SUCCESS,
+    REMOVE_POST_SUCCESS, REPORT_POST_FAILURE, REPORT_POST_REQUEST, REPORT_POST_SUCCESS,
     RETWEET_FAILURE,
     RETWEET_REQUEST,
     RETWEET_SUCCESS,
     UNLIKE_POST_FAILURE,
     UNLIKE_POST_REQUEST,
-    UNLIKE_POST_SUCCESS,
+    UNLIKE_POST_SUCCESS, UPDATE_POST_FAILURE, UPDATE_POST_REQUEST, UPDATE_POST_SUCCESS,
     UPLOAD_IMAGES_FAILURE,
     UPLOAD_IMAGES_REQUEST,
     UPLOAD_IMAGES_SUCCESS,
@@ -131,7 +128,28 @@ function* loadPost(action) {
         console.error(err);
         yield put({
             type: LOAD_POST_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
+        });
+    }
+}
+
+function loadHashtagPostsAPI(data, lastId) {
+    return axios.get(`/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`);
+}
+
+function* loadHashtagPosts(action) {
+    try {
+        console.log('loadHashtag console');
+        const result = yield call(loadHashtagPostsAPI, action.data, action.lastId);
+        yield put({
+            type: LOAD_HASHTAG_POSTS_SUCCESS,
+            data: result.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: LOAD_HASHTAG_POSTS_FAILURE,
+            error: err.response.data,
         });
     }
 }
@@ -151,27 +169,7 @@ function* loadUserPosts(action) {
         console.error(err);
         yield put({
             type: LOAD_USER_POSTS_FAILURE,
-            data: err.response.data,
-        });
-    }
-}
-
-function loadHashtagPostsAPI(data, lastId) {
-    return axios.get(`/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`);
-}
-
-function* loadHashtagPosts(action) {
-    try {
-        const result = yield call(loadHashtagPostsAPI, action.data, action.lastId);
-        yield put({
-            type: LOAD_HASHTAG_POSTS_SUCCESS,
-            data: result.data,
-        });
-    } catch (err) {
-        console.error(err);
-        yield put({
-            type: LOAD_HASHTAG_POSTS_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -215,6 +213,26 @@ function* addPost(action) {
         console.error(err);
         yield put({
             type: ADD_POST_FAILURE,
+            error: err.response.data,
+        });
+    }
+}
+
+function updatePostAPI(data) {
+    return axios.patch(`/post/${data.PostId}`, data);
+}
+
+function* updatePost(action) {
+    try {
+        const result = yield call(updatePostAPI, action.data);
+        yield put({
+            type: UPDATE_POST_SUCCESS,
+            data: result.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: UPDATE_POST_FAILURE,
             error: err.response.data,
         });
     }
@@ -264,6 +282,26 @@ function* addComment(action) {
     }
 }
 
+function reportPostAPI(data) {
+    return axios.post(`/post/${data.postId}/report`, data); // POST /post/1/comment
+}
+
+function* reportPost(action) {
+    try {
+        const result = yield call(reportPostAPI, action.data);
+        yield put({
+            type: REPORT_POST_SUCCESS,
+            data: result.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: REPORT_POST_FAILURE,
+            error: err.response.data,
+        });
+    }
+}
+
 function* watchRetweet() {
     yield takeLatest(RETWEET_REQUEST, retweet);
 }
@@ -284,20 +322,24 @@ function* watchLoadPost() {
     yield takeLatest(LOAD_POST_REQUEST, loadPost);
 }
 
-function* watchLoadUserPosts() {
-    yield throttle(5000, LOAD_USER_POSTS_REQUEST, loadUserPosts);
+function* watchLoadHashtagPosts() {
+    yield takeLatest(LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
 
-function* watchLoadHashtagPosts() {
-    yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
+function* watchLoadUserPosts() {
+    yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPosts);
 }
 
 function* watchLoadPosts() {
-    yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
+    yield takeLatest(LOAD_POSTS_REQUEST, loadPosts);
 }
 
 function* watchAddPost() {
     yield takeLatest(ADD_POST_REQUEST, addPost);
+}
+
+function* watchUpdatePost() {
+    yield takeLatest(UPDATE_POST_REQUEST, updatePost);
 }
 
 function* watchRemovePost() {
@@ -306,6 +348,10 @@ function* watchRemovePost() {
 
 function* watchAddComment() {
     yield takeLatest(ADD_COMMENT_REQUEST, addComment);
+}
+
+function* watchReportPost() {
+    yield takeLatest(REPORT_POST_REQUEST, reportPost);
 }
 
 export default function* postSaga() {
@@ -319,7 +365,9 @@ export default function* postSaga() {
         fork(watchLoadUserPosts),
         fork(watchLoadHashtagPosts),
         fork(watchLoadPosts),
+        fork(watchUpdatePost),
         fork(watchRemovePost),
         fork(watchAddComment),
+        fork(watchReportPost),
     ]);
 }

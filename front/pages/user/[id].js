@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Card } from 'antd';
@@ -16,13 +17,13 @@ const User = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { id } = router.query;
-    const { mainPosts, hasMorePosts, loadUserPostsLoading } = useSelector((state) => state.post);
-    const { userInfo } = useSelector((state) => state.user);
+    const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector((state) => state.post);
+    const { userInfo, me } = useSelector((state) => state.user);
 
     useEffect(() => {
         const onScroll = () => {
             if (window.pageYOffset + document.documentElement.clientHeight > document.documentElement.scrollHeight - 300) {
-                if (hasMorePosts && !loadUserPostsLoading) {
+                if (hasMorePosts && !loadPostsLoading) {
                     dispatch({
                         type: LOAD_USER_POSTS_REQUEST,
                         lastId: mainPosts[mainPosts.length - 1] && mainPosts[mainPosts.length - 1].id,
@@ -35,7 +36,8 @@ const User = () => {
         return () => {
             window.removeEventListener('scroll', onScroll);
         };
-    }, [mainPosts.length, hasMorePosts, id]);
+    }, [mainPosts.length, hasMorePosts, id, loadPostsLoading]);
+    console.log('userInfo', userInfo);
 
     return (
         <AppLayout>
@@ -52,9 +54,10 @@ const User = () => {
                     <meta property="og:url" content={`https://nodebird.com/user/${id}`} />
                 </Head>
             )}
-            {userInfo
+            {userInfo && (userInfo.id !== me?.id)
                 ? (
                     <Card
+                        style={{ marginBottom: 20 }}
                         actions={[
                             <div key="twit">
                                 짹짹
@@ -80,7 +83,9 @@ const User = () => {
                     </Card>
                 )
                 : null}
-            {mainPosts.map((post) => <PostCard key={post.id} post={post} />)}
+            {mainPosts.map((c) => (
+                <PostCard key={c.id} post={c} />
+            ))}
         </AppLayout>
     );
 };
@@ -92,20 +97,16 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
         axios.defaults.headers.Cookie = cookie;
     }
     context.store.dispatch({
+        type: LOAD_USER_REQUEST,
+        data: context.params.id,
+    });
+    context.store.dispatch({
         type: LOAD_USER_POSTS_REQUEST,
         data: context.params.id,
     });
     context.store.dispatch({
         type: LOAD_MY_INFO_REQUEST,
     });
-    context.store.dispatch({
-        type: LOAD_USER_REQUEST,
-        data: context.params.id,
-    });
     context.store.dispatch(END);
     await context.store.sagaTask.toPromise();
-    console.log('getState', context.store.getState().post.mainPosts);
-    return { props: {} };
 });
-
-export default User;
